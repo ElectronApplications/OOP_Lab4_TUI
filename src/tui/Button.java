@@ -18,7 +18,8 @@ public class Button extends TuiElement implements ISelectable, IClickable {
     @Override
     public void update() {
         TuiUtils.renderBorder(framebuffer);
-
+        
+        // Добавляем крестики по углам, если кнопка выделена
         if(selected) {
             framebuffer.set(0, 0, 'X');
             framebuffer.set(framebuffer.w - 1, 0, 'X');
@@ -26,6 +27,7 @@ public class Button extends TuiElement implements ISelectable, IClickable {
             framebuffer.set(framebuffer.w - 1, framebuffer.h - 1, 'X');
         }
 
+        // Закрашиваем кнопку по разному, в зависимости от того, выделена она или нет
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
                 framebuffer.set(i, j, selected ? '#' : ' ');

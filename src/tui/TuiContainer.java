@@ -19,6 +19,7 @@ public class TuiContainer extends TuiElement implements IContainer {
         if(children.containsKey(id))
             throw new IllegalArgumentException("Элемент с таким id уже есть");
 
+        // Проверяем пересечения с другими элементами
         boolean overlaps = false;
         for (Map.Entry<String, TuiElement> element : children.entrySet()) {
             int xmin = element.getValue().x;
@@ -75,6 +76,9 @@ public class TuiContainer extends TuiElement implements IContainer {
         selected = "";
     }
 
+    /**
+     * Получить список элементов, которые можно выделить (ISelectable и IContainer с элементами, которые можно выделить)
+     */
     public List<String> getSelectable() {
         List<String> selectableChildren = new ArrayList<>();
         for (Map.Entry<String, TuiElement> element : children.entrySet()) {
@@ -84,16 +88,24 @@ public class TuiContainer extends TuiElement implements IContainer {
         return selectableChildren;
     }
 
+    /**
+     * Есть ли элементы, которые можно выделить
+     */
     public boolean isSelectable() {
         List<String> selectableChildren = getSelectable();
         return !selectableChildren.isEmpty();
     }
 
+    /**
+     * Сдвинуть выделение
+     * @return Возвращает false, если был произведен сдвиг выделения; false, если выделять нечего, или после сдвига выделение выходит за пределы контейнера
+     */
     public boolean moveSelection(RawKeys key) {
         List<String> selectableChildren = getSelectable();
         if(selectableChildren.isEmpty())
             return false;
 
+        // Крайние элементы
         String mostLeft = selectableChildren.get(0);
         String mostUp = selectableChildren.get(0);
         String mostRight = selectableChildren.get(0);
@@ -113,6 +125,7 @@ public class TuiContainer extends TuiElement implements IContainer {
                 mostDown = element;
         }
 
+        // Выделяем крайний элемент, если сейчас ничего не выделено
         if(selected.isEmpty()) {
             String bestChoice = "";
             switch(key) {
@@ -132,6 +145,7 @@ public class TuiContainer extends TuiElement implements IContainer {
             return true;
         }
         else {
+            // Если выделен контейнер, передаем ему возможность сдвига
             TuiElement selectedElement = children.get(selected);
             if(selectedElement instanceof IContainer && ((IContainer) selectedElement).moveSelection(key))
                 return true;
@@ -159,10 +173,12 @@ public class TuiContainer extends TuiElement implements IContainer {
                         bestChoice = "";
                     break;
             }
-
+            
+            // Двигаться некуда
             if(bestChoice.isEmpty())
                 return false;
-
+            
+            // Первый проход, чтобы найти самый близкий элемент на оси, по которой двигаемся
             for (String element : selectableChildren) {
                 switch(key) {
                     case KEY_LEFT:
@@ -183,7 +199,8 @@ public class TuiContainer extends TuiElement implements IContainer {
                         break;
                 }
             }
-
+            
+            // Первый проход, чтобы найти самый близкий элемент на оси, перпендикулярной той, по которой двигаемся
             for (String element : selectableChildren) {
                 switch(key) {
                     case KEY_LEFT:

@@ -2,9 +2,25 @@ package tui;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Класс, позволяющий работать с определенной вырезкой из двухмерного буфера
+ * На все окно создается буфер char[][], который и используется для отрисовки окна
+ * На каждый TuiElement в окне затем выдается FramebufferSlice, который позволяет элементам работать со своим кусочком буфера
+ * 
+ * В примере ниже внешний прямоугольник - это оригинальный буфер char[][]
+ * Внутренний прямоугольник - это кусочек буфера FramebufferSlice, который может быть выдан какому-нибудь элементу
+ * +--------+
+ * |        |
+ * | +--+   |
+ * | |  |   |
+ * | +--+   |
+ * +--------+
+ */
 public class FramebufferSlice {
-    private final char[][] framebuffer;
-    private final AtomicBoolean dirty;
+    private final char[][] framebuffer; // Ссылка на оригинальный буфер
+    private final AtomicBoolean dirty; // Был ли буфер изменен?
+
+    // Параметры кусочка
     private final int x;
     private final int y;
     public final int w;
