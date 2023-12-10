@@ -6,33 +6,41 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Main {
 
     public static void main(String[] args) {
+        // Создаем окно с 3 кнопками, которые ведут на разные примеры использования тулкита
+        AtomicInteger choice = new AtomicInteger(-1);
+        
         TuiWindow window = new TuiWindow("Самый сложный выбор в вашей жизни", 50, 20);
-
-        AtomicInteger theHardestThing = new AtomicInteger(-1);
+        
+        // Создаем кнопки и указываем их координаты и размеры
         Button clickerButton = new Button(10, 0, 30, 5, "Кликер");
+        Button gridButton = new Button(10, 5, 30, 5, "Сетка");
+        Button joyButton = new Button(10, 10, 30, 5, "Джойстик");
+
+        // Добавляем действия на нажатия на кнопки - при нажатии закрываем окно и изменяем переменную choice
         clickerButton.clickAction = (TuiElement self) -> {
             window.closed = true;
-            theHardestThing.set(0);
+            choice.set(0);
         };
-        window.container.addChild("clicker-button", clickerButton);
-
-        Button gridButton = new Button(10, 5, 30, 5, "Сетка");
+        
         gridButton.clickAction = (TuiElement self) -> {
             window.closed = true;
-            theHardestThing.set(1);
+            choice.set(1);
         };
-        window.container.addChild("grid-button", gridButton);
-
-        Button joyButton = new Button(10, 10, 30, 5, "Джойстик");
+        
         joyButton.clickAction = (TuiElement self) -> {
             window.closed = true;
-            theHardestThing.set(2);
+            choice.set(2);
         };
+        
+        // Прикрепляем элементы к окну
+        window.container.addChild("clicker-button", clickerButton);
+        window.container.addChild("grid-button", gridButton);
         window.container.addChild("joy-button", joyButton);
-
+        
+        // Запускаем обработчик событий
         window.eventLoop();
 
-        switch (theHardestThing.get()) {
+        switch (choice.get()) {
             case 0:
                 clicker();
                 break;
@@ -46,11 +54,16 @@ public class Main {
     }
 
     public static void clicker() {
+        // Пример - кликер с 2 кнопками.
+        // Кнопка Клик добавляет ко счету количество очков, равное multiplier
+        // Кнопка Множить позволяет увеличить значение multiplier за 2^multiplier очков
         AtomicLong totalScore = new AtomicLong(0);
         AtomicLong multiplier = new AtomicLong(1);
 
         TuiWindow window = new TuiWindow("Super Clicker", 60, 20);
 
+        // Здесь используем контейнеры для хранения элементов.
+        // Элементы внутри контейнера могут использовать относительные координаты, что позволяет свободно перемещать контейнер по окну
         TuiContainer infoContainer = new TuiContainer(0, 0, 10, 20);
         window.container.addChild("info-container", infoContainer);
 
@@ -63,28 +76,31 @@ public class Main {
         window.container.addChild("buttons-container", buttonsContainer);
 
         Button clickButton = new Button(0, 0, 20, 3, "Клик");
+        Button multButton = new Button(0, 4, 20, 3, "Множить");
+
         clickButton.clickAction = (TuiElement self) -> {
             totalScore.set(totalScore.get() + multiplier.get());
             ((Label) ((TuiContainer) window.container.getChild("info-container")).getChild("score")).setText("" + totalScore.get());
         };
-        buttonsContainer.addChild("click-button", clickButton);
-
-        Button multButton = new Button(0, 4, 20, 3, "Множить");
+        
         multButton.clickAction = (TuiElement self) -> {
             if(totalScore.get() >= Math.pow(2, multiplier.get())) {
                 totalScore.set(totalScore.get()  - (long) Math.pow(2, multiplier.get()));
                 multiplier.set(multiplier.get() + 1);
             }
-
+            
             ((Label) ((TuiContainer) window.container.getChild("info-container")).getChild("multiplier")).setText("" + multiplier.get());
             ((Label) ((TuiContainer) window.container.getChild("info-container")).getChild("score")).setText("" + totalScore.get());
         };
+
+        buttonsContainer.addChild("click-button", clickButton);
         buttonsContainer.addChild("mult-button", multButton);
 
         window.eventLoop();
     }
 
     public static void grid() {
+        // Пример - сетка из 100 кнопок
         TuiWindow window = new TuiWindow("Grid", 50, 30);
 
         for (int i = 0; i < 10; i++) {
@@ -101,6 +117,7 @@ public class Main {
     }
 
     public static void joy() {
+        // Пример - джойстик, позволяющий перемещать элемент movable по окну
         TuiWindow window = new TuiWindow("Джойстик", 50, 50);
 
         Button left = new Button(16, 44, 6, 3, "");
